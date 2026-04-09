@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One Rep Max Calculator — FORIMA</title>
+  <meta name="description" content="Calculate your one rep max (1RM) for any lift using the most accurate formulas. Free strength calculator powered by FORIMA.">
+  <meta name="keywords" content="one rep max calculator, 1rm calculator, strength calculator, bench press max, squat max, deadlift max">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <!-- Google AdSense placeholder — replace with your publisher ID -->
+  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+  <style>
+    :root {
+      --black: #0A0A0A;
+      --charcoal: #111318;
+      --card: #161B22;
+      --border: #1E2530;
+      --teal: #00D4D4;
+      --teal-dim: #00A3A3;
+      --teal-glow: rgba(0,212,212,0.12);
+      --gold: #D4A017;
+      --gold-bright: #FFD700;
+      --gold-glow: rgba(212,160,23,0.12);
+      --silver: #9BA3AF;
+      --silver-bright: #C8D0DA;
+      --white: #F0F4F8;
+      --error: #FF4444;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 15%, rgba(0,212,212,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 85%, rgba(212,160,23,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,212,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,212,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px 60px;
+    }
+
+    /* Header */
+    header {
+      padding: 40px 0 32px;
+      text-align: center;
+      animation: fadeDown 0.6s ease;
+    }
+    .brand {
+      display: inline-block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--teal);
+      text-transform: uppercase;
+      text-decoration: none;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+    .brand:hover { opacity: 1; }
+    h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(36px, 8vw, 64px);
+      font-weight: 900;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--gold) 50%, var(--teal) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--silver);
+      line-height: 1.6;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,212,212,0.1); }
+      50% { box-shadow: 0 0 40px rgba(0,212,212,0.3); }
+    }
+
+    /* Cards */
+    .card {
+      background: linear-gradient(160deg, rgba(22,27,34,0.95), rgba(17,19,24,0.95));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
+      animation: fadeUp 0.6s ease both;
+    }
+    .card-teal {
+      border-color: var(--teal);
+      box-shadow: 0 0 40px var(--teal-glow), 0 4px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(0,212,212,0.1);
+      animation: pulse-border 3s ease infinite;
+    }
+    .card-gold {
+      border-color: var(--gold);
+      box-shadow: 0 0 40px var(--gold-glow), 0 4px 32px rgba(0,0,0,0.5);
+    }
+
+    /* Labels */
+    .section-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 20px;
+    }
+    .section-label-gold { color: var(--gold); }
+
+    /* Lift selector */
+    .lift-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .lift-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      color: var(--silver);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .lift-btn:hover {
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+    .lift-btn.active {
+      background: rgba(0,212,212,0.1);
+      border-color: var(--teal);
+      color: var(--teal);
+    }
+
+    /* Inputs */
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .input-group label {
+      display: block;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      margin-bottom: 8px;
+    }
+    input[type="number"] {
+      width: 100%;
+      background: rgba(17,19,24,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--white);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: var(--teal); }
+
+    /* Unit toggle */
+    .unit-toggle {
+      display: flex;
+      background: rgba(17,19,24,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    .unit-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 9px;
+      padding: 10px;
+      color: var(--silver);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .unit-btn.active {
+      background: var(--teal);
+      color: var(--black);
+    }
+
+    /* Calculate button */
+    .btn-calculate {
+      width: 100%;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+      border: none;
+      border-radius: 12px;
+      padding: 18px;
+      color: var(--black);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px var(--teal-glow);
+    }
+    .btn-calculate:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(0,212,212,0.25);
+    }
+    .btn-calculate:active { transform: translateY(0); }
+
+    /* Results */
+    .results-section { display: none; }
+    .results-section.visible { display: block; }
+
+    .result-hero {
+      text-align: center;
+      padding: 8px 0 24px;
+    }
+    .result-number {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(72px, 18vw, 120px);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--teal), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .result-unit {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      letter-spacing: 3px;
+      color: var(--silver);
+      margin-top: 4px;
+    }
+    .result-lift {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    /* Percentage table */
+    .pct-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .pct-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: rgba(17,19,24,0.6);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .pct-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--silver);
+    }
+    .pct-value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--teal);
+    }
+
+    /* Formula breakdown */
+    .formula-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .formula-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: rgba(17,19,24,0.6);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .formula-row.best {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.05);
+    }
+    .formula-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--silver-bright);
+    }
+    .formula-desc {
+      font-size: 11px;
+      color: var(--silver);
+      margin-top: 2px;
+    }
+    .formula-value {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--white);
+      text-align: right;
+    }
+    .formula-row.best .formula-value { color: var(--gold); }
+    .best-badge {
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+    }
+
+    /* Ad placeholder */
+    .ad-slot {
+      background: rgba(17,19,24,0.4);
+      border: 1px dashed rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      color: rgba(255,255,255,0.1);
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 16px 0;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Info section */
+    .info-section { margin-top: 8px; }
+    .info-section h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .info-section p {
+      font-size: 14px;
+      color: var(--silver);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    /* CTA */
+    .cta-card {
+      background: linear-gradient(135deg, rgba(0,212,212,0.08), rgba(212,160,23,0.05));
+      border: 1px solid rgba(0,212,212,0.3);
+      border-radius: 20px;
+      padding: 32px 28px;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .cta-eyebrow {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .cta-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-bottom: 12px;
+    }
+    .cta-desc {
+      font-size: 14px;
+      color: var(--silver);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .btn-cta {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dim));
+      border: none;
+      border-radius: 12px;
+      padding: 16px 40px;
+      color: var(--black);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 20px var(--teal-glow);
+    }
+    .btn-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,212,212,0.3);
+    }
+    .cta-sub {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--silver);
+      opacity: 0.6;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px 0 0;
+      border-top: 1px solid var(--border);
+      margin-top: 32px;
+    }
+    footer a {
+      color: var(--teal);
+      text-decoration: none;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+    .footer-meta {
+      font-size: 12px;
+      color: var(--silver);
+      margin-top: 8px;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 480px) {
+      .input-row { grid-template-columns: 1fr; }
+      .pct-grid { grid-template-columns: 1fr; }
+      .lift-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-overlay"></div>
+  <div class="container">
+
+    <header>
+      <a href="https://forima.net" class="brand">⚡ FORIMA</a>
+      <h1>1RM Calculator</h1>
+      <p class="subtitle">Calculate your one rep max for any lift. Uses 6 proven formulas and shows your full strength training percentages.</p>
+    </header>
+
+    <!-- Ad slot top -->
+    <div class="ad-slot">Advertisement</div>
+
+    <!-- Input card -->
+    <div class="card" style="animation-delay: 0.1s">
+      <div class="section-label">⚡ Select Lift</div>
+      <div class="lift-grid">
+        <button class="lift-btn active" onclick="selectLift(this, 'Bench Press')">Bench Press</button>
+        <button class="lift-btn" onclick="selectLift(this, 'Squat')">Squat</button>
+        <button class="lift-btn" onclick="selectLift(this, 'Deadlift')">Deadlift</button>
+        <button class="lift-btn" onclick="selectLift(this, 'Overhead Press')">OHP</button>
+        <button class="lift-btn" onclick="selectLift(this, 'Incline Press')">Incline</button>
+        <button class="lift-btn" onclick="selectLift(this, 'Other')">Other</button>
+      </div>
+
+      <div class="unit-toggle">
+        <button class="unit-btn active" onclick="setUnit(this, 'lbs')">LBS</button>
+        <button class="unit-btn" onclick="setUnit(this, 'kg')">KG</button>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label>Weight Lifted</label>
+          <input type="number" id="weight" placeholder="225" min="1" max="9999">
+        </div>
+        <div class="input-group">
+          <label>Reps Performed</label>
+          <input type="number" id="reps" placeholder="5" min="1" max="30">
+        </div>
+      </div>
+
+      <button class="btn-calculate" onclick="calculate()">Calculate 1RM</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results-section" id="results">
+
+      <!-- Hero result -->
+      <div class="card card-teal" style="animation-delay:0.15s">
+        <div class="section-label">⚡ Your Estimated 1RM</div>
+        <div class="result-hero">
+          <div class="result-number" id="result-number">—</div>
+          <div class="result-unit" id="result-unit">LBS</div>
+          <div class="result-lift" id="result-lift">BENCH PRESS</div>
+        </div>
+      </div>
+
+      <!-- Percentage table -->
+      <div class="card" style="animation-delay:0.2s">
+        <div class="section-label">Training Percentages</div>
+        <div class="pct-grid" id="pct-grid"></div>
+      </div>
+
+      <!-- Ad slot middle -->
+      <div class="ad-slot">Advertisement</div>
+
+      <!-- Formula breakdown -->
+      <div class="card card-gold" style="animation-delay:0.25s">
+        <div class="section-label section-label-gold">Formula Breakdown</div>
+        <div class="formula-grid" id="formula-grid"></div>
+      </div>
+
+    </div>
+
+    <!-- Info section (SEO content) -->
+    <div class="card info-section" style="animation-delay:0.3s">
+      <h2>How to Use This Calculator</h2>
+      <p>Enter the weight you lifted and how many reps you completed — not to failure, just your working set. The calculator uses six established formulas and averages them for the most accurate estimate.</p>
+      <h2>What Is a One Rep Max?</h2>
+      <p>Your one rep max (1RM) is the maximum weight you can lift for a single repetition with proper form. It's the foundation of strength programming — most training percentages are calculated from your 1RM.</p>
+      <h2>The Formulas</h2>
+      <p>This calculator uses the Epley, Brzycki, Lander, Lombardi, Mayhew, and O'Conner formulas. Each has slightly different accuracy at different rep ranges. The average of all six gives the most reliable estimate across most athletes.</p>
+      <h2>Training Percentages Explained</h2>
+      <p>Strength training is typically programmed at 70-95% of your 1RM. Heavy singles fall at 90-100%. Hypertrophy work is usually 65-80%. Technique work stays at 50-65%. Knowing your 1RM means you can program every session with precision.</p>
+    </div>
+
+    <!-- FORIMA CTA -->
+    <div class="cta-card">
+      <div class="cta-eyebrow">⚡ Powered by ANIMA AI</div>
+      <div class="cta-title">Want ANIMA to Build Your Program?</div>
+      <div class="cta-desc">FORIMA's AI coach uses your actual lifts, meals, and goals to build a fully personalized strength program. Not a template — a real program for your real numbers.</div>
+      <a href="https://forima.net" class="btn-cta">Try FORIMA Free</a>
+      <div class="cta-sub">Free to start · No credit card · Your data stays yours</div>
+    </div>
+
+    <!-- Ad slot bottom -->
+    <div class="ad-slot" style="margin-top:24px">Advertisement</div>
+
+    <footer>
+      <a href="https://forima.net">FORIMA.NET</a>
+      <p class="footer-meta">Sovereign AI Fitness Coaching · Free 1RM Calculator · © 2026 FORIMA</p>
+    </footer>
+
+  </div>
+
+  <script>
+    let selectedLift = 'Bench Press';
+    let selectedUnit = 'lbs';
+
+    function selectLift(btn, lift) {
+      document.querySelectorAll('.lift-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedLift = lift;
+    }
+
+    function setUnit(btn, unit) {
+      document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedUnit = unit;
+    }
+
+    function calculate() {
+      const weight = parseFloat(document.getElementById('weight').value);
+      const reps = parseInt(document.getElementById('reps').value);
+
+      if (!weight || !reps || weight <= 0 || reps <= 0 || reps > 30) {
+        alert('Please enter valid weight and reps (1-30)');
+        return;
+      }
+
+      // Six 1RM formulas
+      const formulas = [
+        { name: 'Epley',     desc: 'Most widely used formula',          fn: (w,r) => r === 1 ? w : w * (1 + r/30) },
+        { name: 'Brzycki',   desc: 'Most accurate for low reps (1-10)', fn: (w,r) => r === 1 ? w : w * (36/(37-r)) },
+        { name: 'Lander',    desc: 'Based on powerlifting data',        fn: (w,r) => r === 1 ? w : (100*w)/(101.3-2.67123*r) },
+        { name: 'Lombardi',  desc: 'Good for higher rep ranges',        fn: (w,r) => r === 1 ? w : w * Math.pow(r, 0.10) },
+        { name: 'Mayhew',    desc: 'Validated in athletic populations', fn: (w,r) => r === 1 ? w : (100*w)/(52.2+(41.9*Math.exp(-0.055*r))) },
+        { name: "O'Conner",  desc: 'Simple conservative estimate',      fn: (w,r) => r === 1 ? w : w*(1+0.025*r) },
+      ];
+
+      const results = formulas.map(f => ({ ...f, value: Math.round(f.fn(weight, reps)) }));
+      const avg = Math.round(results.reduce((s,r) => s+r.value, 0) / results.length);
+      const best = results.reduce((a,b) => Math.abs(a.value-avg) < Math.abs(b.value-avg) ? a : b);
+
+      // Show results
+      document.getElementById('result-number').textContent = avg;
+      document.getElementById('result-unit').textContent = selectedUnit.toUpperCase();
+      document.getElementById('result-lift').textContent = selectedLift.toUpperCase();
+
+      // Percentages
+      const pcts = [100,95,90,85,80,75,70,65,60,55];
+      const pctLabels = ['100% — Max','95% — Near Max','90% — Heavy','85% — Strong','80% — Moderate','75% — Volume','70% — Work Sets','65% — Hypertrophy','60% — Technique','55% — Warmup'];
+      const pctGrid = document.getElementById('pct-grid');
+      pctGrid.innerHTML = pcts.map((p,i) => `
+        <div class="pct-row">
+          <span class="pct-label">${pctLabels[i]}</span>
+          <span class="pct-value">${Math.round(avg * p/100)} <small style="font-size:11px;color:var(--silver)">${selectedUnit}</small></span>
+        </div>
+      `).join('');
+
+      // Formula breakdown
+      const formulaGrid = document.getElementById('formula-grid');
+      formulaGrid.innerHTML = results.map(r => `
+        <div class="formula-row ${r.name === best.name ? 'best' : ''}">
+          <div>
+            <div class="formula-name">${r.name} ${r.name === best.name ? '<span class="best-badge">★ Closest to avg</span>' : ''}</div>
+            <div class="formula-desc">${r.desc}</div>
+          </div>
+          <div class="formula-value">${r.value} <small style="font-size:13px;color:var(--silver);font-weight:400">${selectedUnit}</small></div>
+        </div>
+      `).join('');
+
+      // Show results section
+      const resultsEl = document.getElementById('results');
+      resultsEl.classList.add('visible');
+      setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Allow Enter key to calculate
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') calculate();
+    });
+  </script>
+</body>
+</html>
